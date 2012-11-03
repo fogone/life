@@ -11,8 +11,17 @@ fun wait(millis:Long):Unit {
     }
 }
 
+data class Size(val x:Int,val y:Int) {
 
-data class Size(val x:Int,val y:Int)
+    public fun forEach(block:(Int,Int)->Unit): Unit {
+        (0..x).forEach { x ->
+            (0..y).forEach { y ->
+                block(x, y)
+            }
+        }
+    }
+
+}
 
 object TextUtils {
 

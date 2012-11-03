@@ -10,13 +10,13 @@ enum class Cell {
 
 trait GenerationConstructor {
 
-    val size:Int
+    val size:Size
 
     fun construct(x:Int,y:Int):Cell
 
 }
 
-class RandomGenerationConstructor(override val size:Int) : GenerationConstructor {
+class RandomGenerationConstructor(override val size:Size) : GenerationConstructor {
 
     private val random = Random()
 
@@ -25,7 +25,7 @@ class RandomGenerationConstructor(override val size:Int) : GenerationConstructor
     }
 }
 
-class ChessGenerationConstructor(override val size:Int, private val m:Int) : GenerationConstructor {
+class ChessGenerationConstructor(override val size:Size, private val m:Int) : GenerationConstructor {
 
     private var counter = 1
 
@@ -38,7 +38,7 @@ class FileGenerationConstructor(fileName:String) : GenerationConstructor {
 
     private val matrix = toGeneration(TextUtils.readLines(fileName))
 
-    override val size: Int = matrix.size
+    override val size: Size = getSize(matrix)
 
     override fun construct(x: Int, y: Int): Cell = matrix[x][y]
 
@@ -52,11 +52,16 @@ class FileGenerationConstructor(fileName:String) : GenerationConstructor {
         }
     }
 
+    private fun getSize(matrix:Array<Array<Cell>>): Size {
+        val x = matrix.size
+        val y = matrix[0].size
+        return Size(x, y)
+    }
 }
 
 class LifeRulesGenerationConstructor(private val generation:Generation): GenerationConstructor {
 
-    override val size: Int = generation.size
+    override val size: Size = generation.size
 
     override fun construct(x: Int, y: Int): Cell {
         val isLive = generation.isLive(x, y)
@@ -73,10 +78,10 @@ class LifeRulesGenerationConstructor(private val generation:Generation): Generat
 
 class Generation(constructor:GenerationConstructor) {
 
-    val size = constructor.size
+    public val size:Size = constructor.size
 
-    private val cells:Array<Array<Cell>> = Array<Array<Cell>>(size) { x ->
-        Array<Cell>(size) { y -> constructor.construct(x, y) }
+    private val cells:Array<Array<Cell>> = Array<Array<Cell>>(size.x) { x ->
+        Array<Cell>(size.y) { y -> constructor.construct(x, y) }
     }
 
     private fun get(x:Int, y:Int): Cell {
@@ -84,16 +89,13 @@ class Generation(constructor:GenerationConstructor) {
         return cells[dx][dy]
     }
 
-    private fun calculate(x:Int, y:Int): Pair<Int, Int> {
-        var dx = x mod size
-        if (dx < 0) dx = size + dx
-
-        var dy = y mod size
-        if (dy < 0) dy = size + dy
-
-        return Pair<Int, Int>(dx, dy)
+    private fun calculatePosition(v:Int, size:Int): Int {
+        val dv = v mod size
+        return if (dv < 0) size + dv else dv
     }
 
+    private fun calculate(x:Int, y:Int): Size =
+        Size(calculatePosition(x, size.x), calculatePosition(y, size.y))
 
     public fun isLive(x:Int, y:Int): Boolean = this[x, y] == Cell.LIVE
 
@@ -106,20 +108,12 @@ class Generation(constructor:GenerationConstructor) {
         isLive(x, y) != generation.isLive(x, y)
     }
 
-    public fun forEach(block:(Int,Int)->Unit): Unit {
-        val range = 0..size
-
-        range.forEach { x ->
-            range.forEach { y ->
-                block(x, y)
-            }
-        }
-    }
+    public fun live(): Int = find { x, y -> isLive(x, y) }
 
     private fun find(block:(Int, Int)->Boolean): Int {
         var result = 0
 
-        forEach { x, y ->
+        size.forEach { x, y ->
             if(block(x, y))
                 result++
         }
@@ -127,11 +121,4 @@ class Generation(constructor:GenerationConstructor) {
         return result
     }
 
-    public fun live(): Int {
-        var count = 0
-        forEach { x, y ->
-            if(isLive(x, y)) count++
-        }
-        return count
-    }
 }

@@ -52,7 +52,7 @@ class LifeGameFrame(val firstGeneration:GenerationConstructor) : JFrame("Life ga
     private val turnAxis = NumberAxis("Turns")
 
     private val image = getGraphicsConfiguration()!!
-            .createCompatibleImage(firstGeneration.size * rectSize, firstGeneration.size * rectSize)!!
+            .createCompatibleImage(firstGeneration.size.x * rectSize, firstGeneration.size.y * rectSize)!!
 
 
     {
@@ -81,7 +81,7 @@ class LifeGameFrame(val firstGeneration:GenerationConstructor) : JFrame("Life ga
     }
 
     val game = Game(firstGeneration) { game, generation ->
-        generation.forEach { x, y ->
+        generation.size.forEach { x, y ->
             val color = if(generation.isLive(x, y)) Color.WHITE else Color.BLACK
 
             val g = image.getGraphics()!!
@@ -97,8 +97,7 @@ class LifeGameFrame(val firstGeneration:GenerationConstructor) : JFrame("Life ga
 }
 
 fun main(args: Array<String>) {
-    //val generationConstructor = ChessGenerationConstructor(100, 4)
-    val generationConstructor = RandomGenerationConstructor(100)
+    val generationConstructor = RandomGenerationConstructor(Size(100, 100))
 
     val frame = LifeGameFrame(generationConstructor)
 
