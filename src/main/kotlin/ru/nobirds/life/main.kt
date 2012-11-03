@@ -97,7 +97,7 @@ class LifeGameFrame(val firstGeneration:GenerationConstructor) : JFrame("Life ga
 }
 
 fun main(args: Array<String>) {
-    val generationConstructor = RandomGenerationConstructor(Size(100, 100))
+    val generationConstructor = RandomGenerationConstructor(Size(100, 50))
 
     val frame = LifeGameFrame(generationConstructor)
 
