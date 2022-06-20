@@ -10,7 +10,7 @@
     <name>life</name>
 
     <properties>
-        <kotlin.version>0.1-SNAPSHOT</kotlin.version>
+        <kotlin.version>1.6.0-M1</kotlin.version>
     </properties>
 
     <repositories>
